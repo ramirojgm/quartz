@@ -1,0 +1,39 @@
+﻿<Properties StartupItem="quartz/quartz.cproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="quartz/js/source/main.js">
+    <Files>
+      <File FileName="quartz/main.cpp" Line="14" Column="77" />
+      <File FileName="quartz/quartz.h" Line="6" Column="20" />
+      <File FileName="quartz/src/appcontext.h" Line="19" Column="43" />
+      <File FileName="quartz/src/appcontext.cpp" Line="210" Column="2" />
+      <File FileName="quartz/src/dataprovider.h" Line="18" Column="15" />
+      <File FileName="quartz/src/sqliteprovider.cpp" Line="48" Column="69" />
+      <File FileName="quartz/js/source/main.js" Line="11" Column="12" />
+      <File FileName="quartz/js/provider/default.js" Line="12" Column="28" />
+      <File FileName="quartz/src/sqliteprovider.h" Line="8" Column="2" />
+      <File FileName="quartz/src/dataprovider.cpp" Line="13" Column="2" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="quartz" expanded="True">
+            <Node name="quartz" expanded="True">
+              <Node name="Packages" expanded="True" />
+              <Node name="js" expanded="True">
+                <Node name="provider" expanded="True" />
+                <Node name="source" expanded="True">
+                  <Node name="main.js" selected="True" />
+                </Node>
+              </Node>
+              <Node name="src" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
