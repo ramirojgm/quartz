@@ -13,6 +13,8 @@
       <Packages>
         <Package file="/usr/lib/pkgconfig/glibmm-2.4.pc" name="glibmm" IsProject="False" />
         <Package file="/usr/lib/x86_64-linux-gnu/pkgconfig/sqlite3.pc" name="SQLite" IsProject="False" />
+        <Package file="/usr/lib/x86_64-linux-gnu/pkgconfig/giomm-2.4.pc" name="giomm" IsProject="False" />
+        <Package file="/usr/lib/x86_64-linux-gnu/pkgconfig/glibmm-2.4.pc" name="glibmm" IsProject="False" />
       </Packages>
     </Packages>
   </PropertyGroup>

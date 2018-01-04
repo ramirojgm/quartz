@@ -2,9 +2,9 @@
 #define _QUARTZ_
 
 #include <glibmm.h>
+#include <giomm.h>
 #include <sqlite3.h>
 #include <iostream>
-#include <glib.h>
 #include <v8.h>
 #include <memory>
 
@@ -29,11 +29,10 @@ namespace Quartz
 
 #include "src/appcontext.h"
 #include "src/httppackage.h"
-#include "src/httprequest.h"
-#include "src/httpresponse.h"
+//#include "src/httprequest.h"
+//#include "src/httpresponse.h"
 #include "src/dataprovider.h"
 #include "src/sqliteprovider.h"
-//#include "data/document.h"
 
 
 #endif

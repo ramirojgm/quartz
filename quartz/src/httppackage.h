@@ -30,8 +30,8 @@ namespace Quartz
 
 		static Glib::RefPtr<Gio::InputStream> BufferStream(const Glib::RefPtr<Gio::InputStream> & stream);
 
-		virtual void ReadFromStream(const Glib::RefPtr<Gio::InputStream> & stream,const Glib::RefPtr<Glib::Cancellable> & cancellable);
-		virtual void WriteToStream(const Glib::RefPtr<Gio::OutputStream> & stream,const Glib::RefPtr<Glib::Cancellable> & cancellable);
+		virtual void ReadFromStream(const Glib::RefPtr<Gio::DataInputStream> & stream,const Glib::RefPtr<Gio::Cancellable> & cancellable);
+		virtual void WriteToStream(const Glib::RefPtr<Gio::OutputStream> & stream,const Glib::RefPtr<Gio::Cancellable> & cancellable);
 
 		bool Has(const std::string & name);
 		void Unset(const std::string & name);
