@@ -15,52 +15,40 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef HTTP_REQUEST_
-#define HTTP_REQUEST_
+#ifndef QUARTZ_HTTP_REQUEST_
+#define QUARTZ_HTTP_REQUEST_
 
-#include "httppackage.h"
-
-#define HTTP_TYPE_REQUEST	(http_request_get_type())
-
-G_DECLARE_DERIVABLE_TYPE(HttpRequest,http_request,HTTP,REQUEST,HttpPackage)
-
-typedef enum _HttpRequestMethod HttpRequestMethod;
-
-enum _HttpRequestMethod
+namespace Quartz
 {
-	HTTP_REQUEST_METHOD_GET = 0,
-	HTTP_REQUEST_METHOD_POST = 1,
-	HTTP_REQUEST_METHOD_HEAD = 2,
-	HTTP_REQUEST_METHOD_PUT = 3,
-	HTTP_REQUEST_METHOD_DELETE = 4,
-	HTTP_REQUEST_METHOD_TRACE = 5,
-	HTTP_REQUEST_METHOD_OPTIONS = 6,
-	HTTP_REQUEST_METHOD_CONNECT = 7,
-	HTTP_REQUEST_METHOD_PATCH = 8,
-	HTTP_REQUEST_METHOD_INVALID = 9
-};
+	enum HttpMethod
+	{
+		HTTP_METHOD_GET = 0,
+		HTTP_METHOD_POST = 1,
+		HTTP_METHOD_INVALID = 2
+	};
 
-struct _HttpRequestClass
-{
-	/* parent class */
-	HttpPackageClass parent_class;
-	/* methods */
-	gpointer padding[12];
-};
+	class HttpRequest: public HttpPackage {
+	private:
+		HttpRequest();
 
-G_BEGIN_DECLS
+	public:
 
-HttpRequest *		http_request_new(HttpRequestMethod method,const gchar * query,gdouble version);
+		virtual ~HttpRequest();
 
-HttpRequestMethod	http_request_get_method(HttpRequest * request);
-void			http_request_set_method(HttpRequest * request,HttpRequestMethod method);
+		static Quartz::RefPtr<HttpRequest> create();
 
-const gchar *		http_request_get_query(HttpRequest * request);
-void			http_request_set_query(HttpRequest * request,const gchar * query);
+		void ReadFromStream(const Glib::RefPtr<Gio::DataInputStream> & stream,const Glib::RefPtr<Gio::Cancellable> & cancellable);
 
-gdouble			http_request_get_version(HttpRequest * request);
-void			http_request_set_version(HttpRequest * request,gdouble version);
+		HttpMethod	get_method();
 
-G_END_DECLS
+		std::string get_query();
 
+		double		get_version();
+
+	private:
+		HttpMethod	m_method;
+		std::string m_query;
+		double		m_version;
+	};
+}
 #endif

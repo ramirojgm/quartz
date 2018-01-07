@@ -34,7 +34,7 @@ Quartz::HttpPackage::~HttpPackage()
 Glib::RefPtr<Gio::InputStream> 
 Quartz::HttpPackage::BufferStream(const Glib::RefPtr<Gio::InputStream> & stream)
 {
-	Glib::RefPtr<Gio::MemoryOutputStream> out = Gio::MemoryOutputStream::create();
+	Glib::RefPtr<Gio::MemoryOutputStream> out = Gio::MemoryOutputStream::create(NULL,0,g_realloc,g_free);
 	Glib::RefPtr<Gio::MemoryInputStream> input;
 	gchar * content = NULL;
 	guint8 byte = 0;

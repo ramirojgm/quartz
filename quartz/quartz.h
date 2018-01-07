@@ -29,7 +29,7 @@ namespace Quartz
 
 #include "src/appcontext.h"
 #include "src/httppackage.h"
-//#include "src/httprequest.h"
+#include "src/httprequest.h"
 //#include "src/httpresponse.h"
 #include "src/dataprovider.h"
 #include "src/sqliteprovider.h"

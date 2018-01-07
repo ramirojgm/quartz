@@ -12,9 +12,8 @@
     <Packages>
       <Packages>
         <Package file="/usr/lib/pkgconfig/glibmm-2.4.pc" name="glibmm" IsProject="False" />
-        <Package file="/usr/lib/x86_64-linux-gnu/pkgconfig/sqlite3.pc" name="SQLite" IsProject="False" />
-        <Package file="/usr/lib/x86_64-linux-gnu/pkgconfig/giomm-2.4.pc" name="giomm" IsProject="False" />
-        <Package file="/usr/lib/x86_64-linux-gnu/pkgconfig/glibmm-2.4.pc" name="glibmm" IsProject="False" />
+        <Package file="/usr/lib/pkgconfig/sqlite3.pc" name="SQLite" IsProject="False" />
+        <Package file="/usr/lib/pkgconfig/giomm-2.4.pc" name="giomm" IsProject="False" />
       </Packages>
     </Packages>
   </PropertyGroup>
@@ -46,6 +45,7 @@
     <Compile Include="src\sqliteprovider.cpp" />
     <Compile Include="src\dataprovider.cpp" />
     <Compile Include="src\httppackage.cpp" />
+    <Compile Include="src\httprequest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="quartz.h" />
@@ -57,6 +57,7 @@
     </None>
     <None Include="js\src\client\client.js" />
     <None Include="src\httppackage.h" />
+    <None Include="src\httprequest.h" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="js\" />

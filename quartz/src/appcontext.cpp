@@ -213,6 +213,19 @@ bool Quartz::AppContext::IsDefined(
 	else
 		return m_http_get.find(name) != m_http_get.end();
 }
+
+static std::string
+Quartz_AppContext_SessionId()
+{
+	Glib::Rand rand;
+	const char charset[17] = "abcdef0123456789";
+	char newSession[33] = {0,};
+	for(int index = 0; index < 32; index ++) 
+		newSession[index] = charset[rand.get_int_range(0,15)];
+	newSession[32] = 0;
+	return newSession;
+}
+
 		
 v8::Handle<v8::Value> Quartz::AppContext::Invoke(
 	Quartz::HttpAllowMethod allow,
@@ -230,9 +243,7 @@ v8::Handle<v8::Value> Quartz::AppContext::Invoke(
 	{
 		do
 		{
-			gchar * uuid = g_uuid_string_random();
-			session_id = uuid;
-			g_free(uuid);
+			session_id = Quartz_AppContext_SessionId();
 		}while(m_session.find(session_id) != m_session.end());
 		session = v8::Object::New();
 		m_session.insert(std::pair<std::string, v8::Handle<v8::Value> >(session_id,session));
@@ -242,7 +253,7 @@ v8::Handle<v8::Value> Quartz::AppContext::Invoke(
 	{
 		session = v8::Handle<v8::Object>::Cast(m_session.find(session_id)->second);
 	}
-	v8::Handle<v8::Value> args[1] ;
+	v8::Handle<v8::Value> args[1];
 	args[0] = data;
 	return callback->Call(session,1,args);
 }
