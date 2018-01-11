@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2017 Ramiro Jose Garcia Moraga
+	Copyright (C) 2018 Ramiro Jose Garcia Moraga
 
 	This file is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -15,40 +15,28 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QUARTZ_HTTP_REQUEST_
-#define QUARTZ_HTTP_REQUEST_
+#ifndef QUARTZ_WEB_HTTPREQUEST_H_
+#define QUARTZ_WEB_HTTPREQUEST_H_
 
 namespace Quartz
 {
-	enum HttpMethod
-	{
-		HTTP_METHOD_GET = 0,
-		HTTP_METHOD_POST = 1,
-		HTTP_METHOD_INVALID = 2
-	};
+  namespace Web
+  {
+    class HttpRequest: public HttpPackage
+    {
+    private:
+      HttpRequest();
 
-	class HttpRequest: public HttpPackage {
-	private:
-		HttpRequest();
+    public:
+      virtual ~HttpRequest();
 
-	public:
+      static Quartz::RefPtr<HttpRequest> create();
+      static Quartz::RefPtr<HttpRequest> create(const Glib::RefPtr<Gio::InputStream> & stream);
 
-		virtual ~HttpRequest();
+      void read(const Glib::RefPtr<Gio::DataInputStream> & stream);
 
-		static Quartz::RefPtr<HttpRequest> create();
-
-		void ReadFromStream(const Glib::RefPtr<Gio::DataInputStream> & stream,const Glib::RefPtr<Gio::Cancellable> & cancellable);
-
-		HttpMethod	get_method();
-
-		std::string get_query();
-
-		double		get_version();
-
-	private:
-		HttpMethod	m_method;
-		std::string m_query;
-		double		m_version;
-	};
+    };
+  }
 }
-#endif
+
+#endif /* QUARTZ_WEB_HTTPREQUEST_H_ */
