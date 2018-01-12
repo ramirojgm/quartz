@@ -15,36 +15,33 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QUARTZ_WEB_HTTPREQUEST_H_
-#define QUARTZ_WEB_HTTPREQUEST_H_
+#ifndef QUARTZ_WEB_HTTPRESPONSE_H_
+#define QUARTZ_WEB_HTTPRESPONSE_H_
 
 namespace Quartz
 {
   namespace Web
   {
-    class HttpRequest: public HttpPackage
+    class HttpResponse: public HttpPackage
     {
     private:
-      HttpRequest();
+      HttpResponse();
 
     public:
-      virtual ~HttpRequest();
+      virtual ~HttpResponse();
 
-      static Quartz::RefPtr<HttpRequest> create();
-      static Quartz::RefPtr<HttpRequest> create(const Glib::RefPtr<Gio::InputStream> & stream);
+      static Quartz::RefPtr<HttpResponse> create();
 
-      void read(const Glib::RefPtr<Gio::DataInputStream> & stream);
+      void write(const Glib::RefPtr<Gio::DataOutputStream> & stream);
 
-      HttpMethod    get_method();
-      Glib::ustring get_query();
-      Glib::ustring get_query_param();
+      void set_response_code(HttpResponseCode code);
+
+      HttpResponseCode get_response_code(void);
 
     private:
-      HttpMethod m_method;
-      Glib::ustring m_query;
-      Glib::ustring m_query_param;
+      HttpResponseCode m_response_code;
     };
   }
 }
 
-#endif /* QUARTZ_WEB_HTTPREQUEST_H_ */
+#endif /* QUARTZ_WEB_HTTPRESPONSE_H_ */

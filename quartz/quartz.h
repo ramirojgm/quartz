@@ -18,14 +18,14 @@
 #ifndef QUARTZ_H_
 #define QUARTZ_H_
 
-
 #include <glibmm.h>
 #include <giomm.h>
 
+
 namespace Quartz
 {
-  template <typename refptr_t>
-  using RefPtr = std::shared_ptr<refptr_t>;
+  template <typename T_RefPtr>
+  using RefPtr = std::shared_ptr<T_RefPtr>;
 
   namespace Web {
     enum HttpMethod
@@ -50,12 +50,10 @@ namespace Quartz
       HTTP_RESPONSE_NOT_IMPLEMENTED = 501
     };
 
-    class HttpService;
     class HttpPackage;
     class HttpRequest;
     class HttpResponse;
     class HttpSession;
-    class HttpSettings;
   }
 
   namespace Data {
@@ -71,6 +69,10 @@ namespace Quartz
     class Action;
   }
 }
+
+#include "web/httppackage.h"
+#include "web/httprequest.h"
+#include "web/httpresponse.h"
 
 #include "data/serializablebase.h"
 #include "data/serializable.h"

@@ -16,9 +16,10 @@
  */
 
 
-#include "../quartz.h"
 #include <string>
 #include <string.h>
+
+#include "../quartz.h"
 
 Quartz::Web::HttpPackage::HttpPackage()
 {
@@ -47,7 +48,7 @@ Quartz::Web::HttpPackage::buffer_stream(
 	{
 	  out->close();
 	  g_free(out->steal_data());
-	  return input;
+	  return buffer;
 	}
 
       out->write_all(&byte,1,nbyte);
@@ -74,11 +75,13 @@ Quartz::Web::HttpPackage::read_attributes(const Glib::RefPtr<Gio::DataInputStrea
 {
   m_attributes.clear();
   std::string line;
+  gsize line_length;
   std::string::size_type sep_pos = 0;
 
-  while(stream->read_line_utf8(line))
+  for(;;)
     {
-      if(line.length() == 0)
+      stream->read_line_utf8(line,line_length);
+      if(line_length == 0)
 	break;
 
       if((sep_pos = line.find(":")) != std::string::npos)
@@ -101,7 +104,8 @@ Quartz::Web::HttpPackage::write_attributes(const Glib::RefPtr<Gio::DataOutputStr
   std::map<Glib::ustring,Glib::ustring>::iterator it;
   Glib::ustring line = "";
   for(it = m_attributes.begin();it != m_attributes.end(); it++)
-      stream->write_all(Glib::ustring::compose("%s:%s\r\n\r\n",it->first,it->second),written);
+      stream->write_all(Glib::ustring::compose("%1:%2\r\n",it->first,it->second),written);
+  stream->write("\r\n");
 }
 
 
