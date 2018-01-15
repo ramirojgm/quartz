@@ -15,30 +15,36 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include "quartz/quartz.h"
+#ifndef QUARTZ_CACHE_H_
+#define QUARTZ_CACHE_H_
 
-class DataContext
+namespace Quartz
 {
-public:
-  DataContext()
-  {}
-
-  virtual ~DataContext()
+  class Cache
   {
+  public:
+    Cache(const Glib::ustring & filename);
 
-  }
-};
+    virtual ~Cache();
 
-gint
-main(gint argc,gchar ** argv)
-{
-  Gio::init();
-  Quartz::Application app;
-  app.add_inet_port(8080);
+    const guint8 * get_data(
+	Web::HttpCompressionType type,
+	Glib::ustring & mime_type,
+	Glib::ustring & modification_time,
+	gsize & size);
 
-  app.map("/","content");
 
-  app.run();
-  return 0;
+  private:
+    Glib::ustring m_mimetype;
+    Glib::ustring m_modification_time;
+
+    guint8 *	m_uncompress_data;
+    gsize	m_uncompress_size;
+    guint8 *	m_gzip_data;
+    gsize	m_gzip_size;
+    guint8 *	m_deflate_data;
+    gsize 	m_deflate_size;
+  };
 }
+
+#endif /* QUARTZ_CACHE_H_ */

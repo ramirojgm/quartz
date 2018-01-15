@@ -50,24 +50,31 @@ namespace Quartz
       HTTP_RESPONSE_NOT_IMPLEMENTED = 501
     };
 
+    enum HttpCompressionType
+    {
+      HTTP_COMPRESSION_NONE,
+      HTTP_COMPRESSION_GZIP,
+      HTTP_COMPRESSION_DEFLATE
+    };
+
     class HttpPackage;
     class HttpRequest;
     class HttpResponse;
-    class HttpSession;
   }
 
   namespace Data {
     class SerializableBase;
     class Model;
     class Array;
-    template<typename value_t> class Serializable;
+    template<typename T_Value> class Serializable;
   }
 
-  namespace Application {
-    class Application;
-    class Controller;
-    class Action;
-  }
+  class Application;
+  class SessionBase;
+  class Context;
+  class Cache;
+  class Controller;
+  class Result;
 }
 
 #include "web/httppackage.h"
@@ -78,5 +85,8 @@ namespace Quartz
 #include "data/serializable.h"
 #include "data/model.h"
 #include "data/array.h"
+
+#include "application.h"
+#include "cache.h"
 
 #endif /* QUARTZ_H_ */

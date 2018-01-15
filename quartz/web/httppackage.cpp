@@ -122,20 +122,32 @@ Quartz::Web::HttpPackage::reset()
   m_attributes.clear();
 }
 
-template<typename T_Result> T_Result
-Quartz::Web::HttpPackage::get(
+gint
+Quartz::Web::HttpPackage::get_int(
+  const Glib::ustring & name)
+{
+  return std::atoi(m_attributes[name].c_str());
+}
+
+gdouble
+Quartz::Web::HttpPackage::get_double(
+  const Glib::ustring & name)
+{
+  return std::atof(m_attributes[name].c_str());
+}
+
+gint64
+Quartz::Web::HttpPackage::get_int64(
+   const Glib::ustring & name)
+{
+   return std::atoll(m_attributes[name].c_str());
+}
+
+Glib::ustring
+Quartz::Web::HttpPackage::get_string(
     const Glib::ustring & name)
 {
-  if(std::is_same<T_Result,gint>::value)
-      return std::atoi(m_attributes[name].c_str());
-  else if(std::is_same<T_Result,gint64>::value)
-      return std::atoll(m_attributes[name].c_str());
-  else if(std::is_same<T_Result,gdouble>::value)
-      return std::atof(m_attributes[name].c_str());
-  else if(std::is_same<T_Result,Glib::ustring>::value || std::is_same<T_Result,std::string>::value)
-      return m_attributes[name];
-  else
-      return T_Result();
+  return m_attributes[name];
 }
 
 void

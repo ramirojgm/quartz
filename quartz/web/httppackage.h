@@ -40,8 +40,10 @@ namespace Quartz
 
       void reset();
 
-      template<typename T_Result>
-      T_Result get(const Glib::ustring & name);
+      gint	 get_int(const Glib::ustring & name);
+      gint64	 get_int64(const Glib::ustring & name);
+      gdouble 	 get_double(const Glib::ustring & name);
+      Glib::ustring get_string(const Glib::ustring & name);
 
       void set(const Glib::ustring & name,gint64 value);
       void set(const Glib::ustring & name,gdouble value);

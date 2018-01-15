@@ -9,6 +9,7 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include quartz/web/subdir.mk
+-include quartz/bin/Debug/subdir.mk
 -include subdir.mk
 -include objects.mk
 
