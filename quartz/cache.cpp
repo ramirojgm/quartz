@@ -15,28 +15,41 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+#include <iostream>
 #include "quartz.h"
 
 Quartz::Cache::Cache(const Glib::ustring & filename)
 {
-  Glib::ustring file_data = Glib::file_get_contents(filename);
+  Glib::RefPtr<Gio::File> resource_file = Gio::File::create_for_path(filename);
+
+  gchar * file_content = NULL;
+  gsize  file_length = 0;
+
+  resource_file->load_contents(file_content,file_length);
+
+  Glib::ustring file_data(file_content);
   Glib::DateTime cur_time = Glib::DateTime::create_now_local();
 
   gsize written = 0;
 
-  m_mimetype = "text/html";
+  bool uncertain = false;
+  m_mimetype = Gio::content_type_guess(filename,
+				       file_data,
+					uncertain);
+  if(uncertain)
+    m_mimetype = "text/html";
+
   m_modification_time = cur_time.format("%a, %e %b %Y %T %Z");
 
   if(file_data.length() > 0)
     {
-      m_uncompress_data = (guint8*)g_memdup(file_data.c_str(),file_data.length());
-      m_uncompress_size = file_data.length();
+      m_uncompress_data = (guint8*)file_content;
+      m_uncompress_size = file_length;
 
       Glib::RefPtr<Gio::ZlibCompressor> gzip_compressor = Gio::ZlibCompressor::create(Gio::ZLIB_COMPRESSOR_FORMAT_GZIP,9);
       Glib::RefPtr<Gio::ZlibCompressor> deflate_compressor = Gio::ZlibCompressor::create(Gio::ZLIB_COMPRESSOR_FORMAT_RAW,9);
-      Glib::RefPtr<Gio::MemoryOutputStream> gzip_out = Gio::MemoryOutputStream::create();
-      Glib::RefPtr<Gio::MemoryOutputStream> deflate_out = Gio::MemoryOutputStream::create();
+      Glib::RefPtr<Gio::MemoryOutputStream> gzip_out = Gio::MemoryOutputStream::create(NULL,0,g_realloc,g_free);
+      Glib::RefPtr<Gio::MemoryOutputStream> deflate_out = Gio::MemoryOutputStream::create(NULL,0,g_realloc,g_free);
       Glib::RefPtr<Gio::ConverterOutputStream> gzip_converter = Gio::ConverterOutputStream::create(gzip_out,gzip_compressor);
       Glib::RefPtr<Gio::ConverterOutputStream> deflate_converter = Gio::ConverterOutputStream::create(deflate_out,deflate_compressor);
 

@@ -18,17 +18,6 @@
 #include <iostream>
 #include "quartz/quartz.h"
 
-class DataContext
-{
-public:
-  DataContext()
-  {}
-
-  virtual ~DataContext()
-  {
-
-  }
-};
 
 gint
 main(gint argc,gchar ** argv)
