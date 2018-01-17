@@ -16,6 +16,7 @@
  */
 
 #include "quartz.h"
+#include <iostream>
 
 Quartz::Application::Application()
 {
@@ -24,6 +25,7 @@ Quartz::Application::Application()
 
   g_mutex_init(&m_controller_mutex);
   g_mutex_init(&m_cache_mutex);
+  g_mutex_init(&m_session_mutex);
 
   m_service->signal_run()
       .connect(sigc::mem_fun(*this,&Application::on_service_run));
@@ -88,7 +90,10 @@ template<typename T_Controller>
 void
 Quartz::Application::map(const Glib::ustring & vpath)
 {
-
+  T_Controller * controller = new T_Controller();
+  g_mutex_lock(&m_controller_mutex);
+  m_controller[vpath] = controller;
+  g_mutex_unlock(&m_controller_mutex);
 }
 
 void
@@ -184,11 +189,96 @@ Quartz::Application::on_service_run(
 	  }
 	else
 	  {
+	    //NOT FOUND
 	    response->set_response_code(Web::HTTP_RESPONSE_NOT_FOUND);
 	    response->write(out);
 	  }
 	g_mutex_unlock(&m_cache_mutex);
       }
+    else if (request->get_method() == Web::HTTP_METHOD_POST)
+      {
+	Glib::ustring query_base = request->get_query().substr(1);
+	Glib::ustring session_id = "";
+	Glib::ustring controller_name = "";
+	Glib::ustring action_name = "";
+	Session * session = NULL;
 
+	if(query_base != "")
+	  {
+	    std::string::size_type npos = 0;
+	    if((npos = query_base.find("/")) != std::string::npos)
+	      {
+		controller_name = query_base.substr(0,npos);
+		action_name = query_base.substr(npos + 1);
+	      }
+	    else
+	      {
+		controller_name = query_base;
+		action_name = "default";
+	      }
+	  }
+
+	if(request->has("Cookie"))
+	  {
+	    Glib::ustring cookie = request->get_string("Cookie");
+	    std::string::size_type npos_cookie = 0;
+	    std::string::size_type npos_cookie_stop = 0;
+
+	    if((npos_cookie = cookie.find("quartz=")) != std::string::npos)
+	      {
+		npos_cookie_stop = cookie.find(";",npos_cookie);
+		if(npos_cookie_stop != std::string::npos)
+		  session_id = cookie.substr(npos_cookie + 7,npos_cookie_stop - (npos_cookie + 7));
+		else
+		  session_id = cookie.substr(npos_cookie + 7);
+	      }
+	  }
+
+	g_mutex_lock(&m_session_mutex);
+	if(session_id.empty() || m_session.find(session_id) == m_session.end())
+	  {
+	    session_id = "";
+	    gchar hex_val[] = "0123456789abcdef";
+	    gchar hex[15] = {0,};
+
+	    while(m_session.find(session_id) != m_session.end())
+	      {
+		Glib::Rand rand;
+		for(gint c = 0;c <= 14;c ++)
+		  {
+		    if(c == 4||c == 9)
+		      hex[c] = '-';
+		    else
+		      hex[c] = hex_val[rand.get_int_range(0,15)];
+		  }
+		session_id = Glib::ustring(hex);
+	      }
+	    response->set("Set-Cookie",Glib::ustring::compose("quartz=%1; HttpOnly",session_id));
+	    session = new Session();
+	    m_session[session_id] = session;
+	  }
+	else
+	  {
+	    session = m_session[session_id];
+	  }
+	g_mutex_unlock(&m_session_mutex);
+
+	if(session) {
+	    response->write(out);
+	} else {
+	    Glib::ustring message = "{ success = false, message = \"the session was not found\" }";
+	    response->set_response_code(Web::HTTP_RESPONSE_INTERNAL_ERROR_SERVER);
+	    response->set("Content-Type","application/json");
+	    response->set("Content-Length",(gint64)message.length());
+	    response->write(out);
+	    out->write_all(message,written);
+	}
+      }
+    else
+      {
+	//NOT METHOD ALLOWED
+	response->set_response_code(Web::HTTP_RESPONSE_METHOD_NOT_ALLOWED);
+	response->write(out);
+      }
     return true;
 }

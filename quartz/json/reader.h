@@ -15,29 +15,47 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QUARTZ_DATA_SERIALIZABLEBASE_H_
-#define QUARTZ_DATA_SERIALIZABLEBASE_H_
+#ifndef QUARTZ_JSON_READER_H_
+#define QUARTZ_JSON_READER_H_
+
+#include "json-glib/json-glib.h"
 
 namespace Quartz
 {
-  namespace Data
+  namespace JSON
   {
-    class SerializableBase {
-    protected:
-      SerializableBase();
-
+    class Reader {
     public:
-      virtual ~SerializableBase();
+      Reader(const Glib::ustring & src);
 
-      virtual void parse(const Glib::RefPtr<Gio::DataInputStream> & input,
-			 const Glib::RefPtr<Gio::Cancellable> & cancellable) = 0;
+      virtual ~Reader();
 
-      virtual void serialize(
-            	  const Glib::RefPtr<Gio::DataOutputStream> & output,
-            	  const Glib::RefPtr<Gio::Cancellable> & cancellable) = 0;
+      bool is_object();
+      bool is_array();
+      bool is_value();
+      bool is_null();
 
+      gint count_elements();
+      gint count_members();
+
+      Glib::ustring get_member_name();
+
+      bool read_element(gint index);
+      void end_element();
+
+      bool read_member(const Glib::ustring & name);
+      void end_member();
+
+      gint64 read_int();
+      gdouble read_double();
+      Glib::ustring read_string();
+      bool read_boolean();
+
+    private:
+      JsonReader * m_reader;
     };
   }
 }
 
-#endif /* QUARTZ_DATA_SERIALIZABLEBASE_H_ */
+
+#endif /* QUARTZ_DATA_MODEL_H_ */
