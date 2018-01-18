@@ -35,18 +35,26 @@ Quartz::Application::~Application()
 {
   g_mutex_clear(&m_controller_mutex);
   g_mutex_clear(&m_cache_mutex);
+  g_mutex_clear(&m_session_mutex);
 
- /* for(std::map<Glib::ustring,Controller*>::iterator it = m_controller.begin();
+  for(std::map<Glib::ustring,Controller*>::iterator it = m_controller.begin();
       it != m_controller.end();
       it++)
     {
       delete it->second;
       it->second = 0;
     }
-*/
 
   for(std::map<Glib::ustring,Cache*>::iterator it = m_cache.begin();
       it != m_cache.end();
+      it++)
+    {
+      delete it->second;
+      it->second = 0;
+    }
+
+  for(std::map<Glib::ustring,Session*>::iterator it = m_session.begin();
+      it != m_session.end();
       it++)
     {
       delete it->second;
@@ -263,16 +271,68 @@ Quartz::Application::on_service_run(
 	  }
 	g_mutex_unlock(&m_session_mutex);
 
-	if(session) {
-	    response->write(out);
-	} else {
+	if(session)
+	  {
+	    if(!request->has("Content-Length"))
+	      {
+		response->set_response_code(Web::HTTP_RESPONSE_LENGTH_REQUIRED);
+		response->write(out);
+	      }
+	    else
+	      {
+		g_mutex_lock(&m_controller_mutex);
+		auto it_controller = m_controller.find(controller_name);
+		if(it_controller != m_controller.end())
+		  {
+		    Controller * controller = it_controller->second;
+		    if(controller->has(action_name))
+		      {
+			//Invoke Action
+			gint body_length = request->get_int("Content-Length");
+			Glib::ustring body_content = "";
+			if(body_length > 0)
+			  {
+			    gsize read_count;
+			    gpointer body_data = g_malloc(body_length);
+			    in->read_all(body_data,body_length,read_count);
+			    body_content = Glib::ustring((gchar*)body_data,body_length);
+			    g_free(body_data);
+			  }
+			Quartz::RefPtr<Context> context(new Context(*session,body_content));
+			try
+			{
+			    auto result = controller->invoke(action_name,context);
+			}
+			catch(std::exception * ex)
+			{
+			    Glib::ustring message = Glib::ustring::compose("{ success = false, message = \"%1\" }",ex->what());
+			    response->set_response_code(Web::HTTP_RESPONSE_INTERNAL_ERROR_SERVER);
+			    response->set("Content-Length",(gint64)message.length());
+			    response->write(out);
+			    out->write(message);
+			    delete ex;
+			}
+		      }
+		    else
+		      {
+			//NOT FOUND
+			response->set_response_code(Web::HTTP_RESPONSE_NOT_FOUND);
+			response->write(out);
+		      }
+		  }
+		response->write(out);
+		g_mutex_unlock(&m_controller_mutex);
+	      }
+	  }
+	else
+	  {
 	    Glib::ustring message = "{ success = false, message = \"the session was not found\" }";
 	    response->set_response_code(Web::HTTP_RESPONSE_INTERNAL_ERROR_SERVER);
 	    response->set("Content-Type","application/json");
 	    response->set("Content-Length",(gint64)message.length());
 	    response->write(out);
 	    out->write_all(message,written);
-	}
+	  }
       }
     else
       {

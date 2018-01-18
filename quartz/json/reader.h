@@ -58,4 +58,4 @@ namespace Quartz
 }
 
 
-#endif /* QUARTZ_DATA_MODEL_H_ */
+#endif /* QUARTZ_JSON_READER_H_ */

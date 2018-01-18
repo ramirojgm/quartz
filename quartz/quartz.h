@@ -63,12 +63,15 @@ namespace Quartz
   }
 
   namespace JSON {
-    class Base;
     class Reader;
     class Builder;
-    class Node;
   }
 
+  namespace FormData {
+    class Reader;
+  }
+
+  class Reader;
   class Application;
   class Session;
   class Context;
@@ -83,14 +86,9 @@ namespace Quartz
 
 #include "json/reader.h"
 
-/*#include "json/serializablebase.h"
-#include "json/serializable.h"
-#include "json/model.h"
-#include "json/array.h"
-*/
-
 #include "application.h"
 #include "session.h"
+#include "context.h"
 #include "cache.h"
 
 #endif /* QUARTZ_H_ */

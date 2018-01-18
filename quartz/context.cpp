@@ -15,23 +15,16 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef QUARTZ_CONTEXT_H_
-#define QUARTZ_CONTEXT_H_
+#include "quartz.h"
 
-namespace Quartz
+Quartz::Context::Context(Quartz::Session & _session,const Glib::ustring & _body):
+  session(_session),
+  body(_body)
 {
-  class Context
-  {
-  private:
-    friend class Application;
-    Context(Session & _session,const Glib::ustring & _body);
 
-  public:
-    virtual ~Context();
-
-    Session & session;
-    Glib::ustring body;
-  };
 }
 
-#endif /* QUARTZ_CONTEXT_H_ */
+Quartz::Context::~Context()
+{
+
+}
