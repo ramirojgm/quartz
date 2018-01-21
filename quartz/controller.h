@@ -26,6 +26,7 @@ namespace Quartz
   {
   public:
     Controller();
+    virtual ~Controller();
 
     bool has(const Glib::ustring & name);
 

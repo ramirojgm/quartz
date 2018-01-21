@@ -17,3 +17,34 @@
 
 #include "quartz.h"
 
+
+Quartz::Controller::Controller()
+{
+
+}
+
+Quartz::Controller::~Controller()
+{
+
+}
+
+bool
+Quartz::Controller::has(const Glib::ustring & name)
+{
+  return m_action.find(name) != m_action.end();
+}
+
+Quartz::RefPtr<Quartz::Result>
+Quartz::Controller::invoke(const Glib::ustring & name,const Quartz::RefPtr<Quartz::Context> & context)
+{
+
+}
+
+
+void
+Quartz::Controller::map(
+    const Glib::ustring & name,
+    const Quartz::ActionFunc & func)
+{
+  m_action[name] = func;
+}

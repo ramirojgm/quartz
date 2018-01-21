@@ -87,6 +87,7 @@ namespace Quartz
 #include "json/reader.h"
 
 #include "application.h"
+#include "controller.h"
 #include "session.h"
 #include "context.h"
 #include "cache.h"
