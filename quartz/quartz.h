@@ -62,15 +62,18 @@ namespace Quartz
     class HttpResponse;
   }
 
-  namespace Data {
-    class SerializableBase;
-    class Model;
-    class Array;
-    template<typename T_Value> class Serializable;
+  namespace JSON {
+    class Reader;
+    class Builder;
   }
 
+  namespace FormData {
+    class Reader;
+  }
+
+  class Reader;
   class Application;
-  class SessionBase;
+  class Session;
   class Context;
   class Cache;
   class Controller;
@@ -81,12 +84,12 @@ namespace Quartz
 #include "web/httprequest.h"
 #include "web/httpresponse.h"
 
-#include "data/serializablebase.h"
-#include "data/serializable.h"
-#include "data/model.h"
-#include "data/array.h"
+#include "json/reader.h"
 
 #include "application.h"
+#include "controller.h"
+#include "session.h"
+#include "context.h"
 #include "cache.h"
 
 #endif /* QUARTZ_H_ */

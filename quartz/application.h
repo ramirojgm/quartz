@@ -51,6 +51,9 @@ namespace Quartz
 
     GMutex m_cache_mutex;
     std::map<Glib::ustring,Cache*> m_cache;
+
+    GMutex m_session_mutex;
+    std::map<Glib::ustring,Session*> m_session;
   };
 }
 
