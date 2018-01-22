@@ -71,6 +71,9 @@ namespace Quartz
     class Reader;
   }
 
+  class Template;
+  class View;
+  class ViewData;
   class Reader;
   class Application;
   class Session;
@@ -78,6 +81,8 @@ namespace Quartz
   class Cache;
   class Controller;
   class Result;
+  class JSONResult;
+  class ContentResult;
 }
 
 #include "web/httppackage.h"
@@ -87,6 +92,7 @@ namespace Quartz
 #include "json/reader.h"
 
 #include "application.h"
+#include "result.h"
 #include "controller.h"
 #include "session.h"
 #include "context.h"

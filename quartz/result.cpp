@@ -15,21 +15,38 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include "web/web.h"
 
+#include "quartz.h"
 
-gint
-main(gint argc,gchar ** argv)
+Quartz::Result::Result()
+{}
+
+Quartz::Result::~Result()
+{}
+
+Quartz::ContentResult::ContentResult(
+    const Glib::ustring & content,
+    const Glib::ustring & content_type)
 {
-  Gio::init();
-  Quartz::Application app;
-  app.add_inet_port(8080);
-
-
-  app.map("/","web/content");
-  app.map("welcome",new Web::Controller::Welcome());
-
-  app.run();
-  return 0;
+  m_content = content;
+  m_content_type = content_type;
 }
+
+Quartz::ContentResult::~ContentResult()
+{
+
+}
+
+void
+Quartz::ContentResult::run(
+    const Quartz::RefPtr<Quartz::Web::HttpResponse> & response)
+{
+  response->set("Content-Type",m_content_type);
+}
+
+Glib::ustring
+Quartz::ContentResult::get_content()
+{
+  return m_content;
+}
+

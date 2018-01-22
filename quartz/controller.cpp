@@ -35,11 +35,20 @@ Quartz::Controller::has(const Glib::ustring & name)
 }
 
 Quartz::RefPtr<Quartz::Result>
-Quartz::Controller::invoke(const Glib::ustring & name,const Quartz::RefPtr<Quartz::Context> & context)
+Quartz::Controller::invoke(
+    const Glib::ustring & name,
+    const Quartz::RefPtr<Quartz::Context> & context)
 {
-
+  Quartz::ActionFunc func = m_action[name];
+  return func(context);
 }
 
+Quartz::RefPtr<Quartz::Result>
+Quartz::Controller::content(const Glib::ustring & content,
+			    const Glib::ustring & content_type)
+{
+  return Quartz::RefPtr<Result>(new ContentResult(content,content_type));
+}
 
 void
 Quartz::Controller::map(

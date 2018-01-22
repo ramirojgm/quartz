@@ -33,6 +33,11 @@ namespace Quartz
     RefPtr<Result> invoke(const Glib::ustring & name,const RefPtr<Context> & context);
 
 
+    RefPtr<Result> content(const Glib::ustring & content,
+			   const Glib::ustring & content_type);
+
+    RefPtr<Result> redirect(const Glib::ustring & url);
+
   protected:
     void map(
 	const Glib::ustring & name,

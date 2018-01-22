@@ -31,8 +31,7 @@ namespace Quartz
 
     void map(const Glib::ustring & vpath,const Glib::ustring & path);
 
-    template<typename T_Controller>
-    void map(const Glib::ustring & vpath);
+    void map(const Glib::ustring & vpath,Controller * controller);
 
     void run();
 

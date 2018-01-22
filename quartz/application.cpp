@@ -94,11 +94,9 @@ Quartz::Application::map(
   dir.close();
 }
 
-template<typename T_Controller>
 void
-Quartz::Application::map(const Glib::ustring & vpath)
+Quartz::Application::map(const Glib::ustring & vpath,Controller * controller)
 {
-  T_Controller * controller = new T_Controller();
   g_mutex_lock(&m_controller_mutex);
   m_controller[vpath] = controller;
   g_mutex_unlock(&m_controller_mutex);
@@ -138,143 +136,159 @@ Quartz::Application::on_service_run(
     response->set("Content-Length",0l);
     response->set("Connection","close");
 
+    bool not_found = true;
     gsize written = 0;
 
-    if(request->get_method() == Web::HTTP_METHOD_GET)
+    if(request->get_method() == Web::HTTP_METHOD_GET || request->get_method() == Web::HTTP_METHOD_POST)
       {
-	//Search for a file in the server
-	Glib::ustring query = request->get_query();
-	if(Glib::str_has_suffix(query,"/"))
-	  query = Glib::build_filename(query,"index.htm");
-
-	g_mutex_lock(&m_cache_mutex);
-	std::map<Glib::ustring,Cache*>::iterator it;
-	if((it = m_cache.find(query)) != m_cache.end())
+	if(request->get_method() == Web::HTTP_METHOD_GET)
 	  {
-	    Glib::ustring encoding = "";
-	    if(request->has("Accept-Encoding"))
-	      encoding = request->get_string("Accept-Encoding");
+	    //STATIC CONTENT
+	    Glib::ustring query = request->get_query();
+	    if(Glib::str_has_suffix(query,"/"))
+	      query = Glib::build_filename(query,"index.htm");
 
-	    Glib::ustring mime_type;
-	    Glib::ustring modification_time;
-	    const guint8 * content_data;
-	    gsize content_size;
-
-	    if(encoding.find("deflate") != std::string::npos)
+	    g_mutex_lock(&m_cache_mutex);
+	    std::map<Glib::ustring,Cache*>::iterator it;
+	    if((it = m_cache.find(query)) != m_cache.end())
 	      {
-		response->set("Content-Encoding","deflate");
-		content_data = it->second->get_data(
-		    Web::HTTP_COMPRESSION_DEFLATE,
-		    mime_type,
-		    modification_time,
-		    content_size);
-	      }
-	    else if(encoding.find("gzip") != std::string::npos)
-	      {
-		response->set("Content-Encoding","gzip");
-		content_data = it->second->get_data(
-		    Web::HTTP_COMPRESSION_GZIP,
-		    mime_type,
-		    modification_time,
-		    content_size);
-	      }
-	    else
-	      {
-		content_data = it->second->get_data(
-		    Web::HTTP_COMPRESSION_NONE,
-		    mime_type,
-		    modification_time,
-		    content_size);
-	      }
+		not_found = false;
+		Glib::ustring encoding = "";
+		if(request->has("Accept-Encoding"))
+		  encoding = request->get_string("Accept-Encoding");
 
-	    response->set("Content-Type",mime_type);
-	    response->set("Last-Modified",modification_time);
-	    response->set("Content-Length",(gint64)content_size);
+		Glib::ustring mime_type;
+		Glib::ustring modification_time;
+		const guint8 * content_data;
+		gsize content_size;
 
-	    response->write(out);
-	    if(content_size > 0)
-		out->write_all(content_data,content_size,written);
-	  }
-	else
-	  {
-	    //NOT FOUND
-	    response->set_response_code(Web::HTTP_RESPONSE_NOT_FOUND);
-	    response->write(out);
-	  }
-	g_mutex_unlock(&m_cache_mutex);
-      }
-    else if (request->get_method() == Web::HTTP_METHOD_POST)
-      {
-	Glib::ustring query_base = request->get_query().substr(1);
-	Glib::ustring session_id = "";
-	Glib::ustring controller_name = "";
-	Glib::ustring action_name = "";
-	Session * session = NULL;
-
-	if(query_base != "")
-	  {
-	    std::string::size_type npos = 0;
-	    if((npos = query_base.find("/")) != std::string::npos)
-	      {
-		controller_name = query_base.substr(0,npos);
-		action_name = query_base.substr(npos + 1);
-	      }
-	    else
-	      {
-		controller_name = query_base;
-		action_name = "default";
-	      }
-	  }
-
-	if(request->has("Cookie"))
-	  {
-	    Glib::ustring cookie = request->get_string("Cookie");
-	    std::string::size_type npos_cookie = 0;
-	    std::string::size_type npos_cookie_stop = 0;
-
-	    if((npos_cookie = cookie.find("quartz=")) != std::string::npos)
-	      {
-		npos_cookie_stop = cookie.find(";",npos_cookie);
-		if(npos_cookie_stop != std::string::npos)
-		  session_id = cookie.substr(npos_cookie + 7,npos_cookie_stop - (npos_cookie + 7));
-		else
-		  session_id = cookie.substr(npos_cookie + 7);
-	      }
-	  }
-
-	g_mutex_lock(&m_session_mutex);
-	if(session_id.empty() || m_session.find(session_id) == m_session.end())
-	  {
-	    session_id = "";
-	    gchar hex_val[] = "0123456789abcdef";
-	    gchar hex[15] = {0,};
-
-	    while(m_session.find(session_id) != m_session.end())
-	      {
-		Glib::Rand rand;
-		for(gint c = 0;c <= 14;c ++)
+		if(encoding.find("deflate") != std::string::npos)
 		  {
-		    if(c == 4||c == 9)
-		      hex[c] = '-';
-		    else
-		      hex[c] = hex_val[rand.get_int_range(0,15)];
+		    response->set("Content-Encoding","deflate");
+		    content_data = it->second->get_data(
+			Web::HTTP_COMPRESSION_DEFLATE,
+			mime_type,
+			modification_time,
+			content_size);
 		  }
-		session_id = Glib::ustring(hex);
-	      }
-	    response->set("Set-Cookie",Glib::ustring::compose("quartz=%1; HttpOnly",session_id));
-	    session = new Session();
-	    m_session[session_id] = session;
-	  }
-	else
-	  {
-	    session = m_session[session_id];
-	  }
-	g_mutex_unlock(&m_session_mutex);
+		else if(encoding.find("gzip") != std::string::npos)
+		  {
+		    response->set("Content-Encoding","gzip");
+		    content_data = it->second->get_data(
+			Web::HTTP_COMPRESSION_GZIP,
+			mime_type,
+			modification_time,
+			content_size);
+		  }
+		else
+		  {
+		    content_data = it->second->get_data(
+			Web::HTTP_COMPRESSION_NONE,
+			mime_type,
+			modification_time,
+			content_size);
+		  }
 
-	if(session)
+		response->set("Content-Type",mime_type);
+		response->set("Last-Modified",modification_time);
+		response->set("Content-Length",(gint64)content_size);
+
+		response->write(out);
+		if(content_size > 0)
+		    out->write_all(content_data,content_size,written);
+	      }
+	    g_mutex_unlock(&m_cache_mutex);
+	  }
+
+	if (not_found)
 	  {
-	    if(!request->has("Content-Length"))
+	    //DYNAMIC CONTENT
+	    Glib::ustring query_base = request->get_query().substr(1);
+	    if(query_base.empty())
+	      query_base = "default";
+
+	    Glib::ustring session_id = "";
+	    Glib::ustring controller_name = "";
+	    Glib::ustring action_name = "";
+	    bool volatile_sesion = false;
+	    Session * session = NULL;
+
+	    if(query_base != "")
 	      {
+		std::string::size_type npos = 0;
+		if((npos = query_base.find("/")) != std::string::npos)
+		  {
+		    controller_name = query_base.substr(0,npos);
+		    action_name = query_base.substr(npos + 1);
+		  }
+		else
+		  {
+		    controller_name = query_base;
+		    action_name = "default";
+		  }
+	      }
+
+
+	    if(request->has("Cookie"))
+	      {
+		Glib::ustring cookie = request->get_string("Cookie");
+		std::string::size_type npos_cookie = 0;
+		std::string::size_type npos_cookie_stop = 0;
+
+		if((npos_cookie = cookie.find("quartz=")) != std::string::npos)
+		  {
+		    npos_cookie_stop = cookie.find(";",npos_cookie);
+		    if(npos_cookie_stop != std::string::npos)
+		      session_id = cookie.substr(npos_cookie + 7,npos_cookie_stop - (npos_cookie + 7));
+		    else
+		      session_id = cookie.substr(npos_cookie + 7);
+		  }
+	      }
+
+	    g_mutex_lock(&m_session_mutex);
+	    if(session_id.empty() || m_session.find(session_id) == m_session.end())
+	      {
+		if(request->get_method() == Web::HTTP_METHOD_POST)
+		  {
+		    volatile_sesion = false;
+		    session_id = "";
+		    gchar hex_val[] = "0123456789abcdef";
+		    gchar hex[21] = {0,};
+
+		    while(m_session.find(session_id) != m_session.end())
+		      {
+			Glib::Rand rand;
+			for(gint c = 0;c <= 19;c ++)
+			  {
+			    if(c == 4||c == 12)
+			      hex[c] = '-';
+			    else
+			      hex[c] = hex_val[rand.get_int_range(0,15)];
+			  }
+			hex[20] = 0;
+			session_id = Glib::ustring(hex);
+		      }
+
+		    response->set("Set-Cookie",Glib::ustring::compose("quartz=%1; HttpOnly",session_id));
+		    session = new Session();
+		    m_session[session_id] = session;
+		  }
+		else
+		  {
+		    volatile_sesion = true;
+		    session = new Session();
+		  }
+	      }
+	    else
+	      {
+		session = m_session[session_id];
+	      }
+
+	    g_mutex_unlock(&m_session_mutex);
+
+	    if(request->get_method() == Web::HTTP_METHOD_POST && !request->has("Content-Length"))
+	      {
+		not_found = false;
 		response->set_response_code(Web::HTTP_RESPONSE_LENGTH_REQUIRED);
 		response->write(out);
 	      }
@@ -284,28 +298,44 @@ Quartz::Application::on_service_run(
 		auto it_controller = m_controller.find(controller_name);
 		if(it_controller != m_controller.end())
 		  {
+		    not_found = false;
 		    Controller * controller = it_controller->second;
 		    if(controller->has(action_name))
 		      {
 			//Invoke Action
-			gint body_length = request->get_int("Content-Length");
 			Glib::ustring body_content = "";
-			if(body_length > 0)
+			if(request->get_method() == Web::HTTP_METHOD_POST)
 			  {
-			    gsize read_count;
-			    gpointer body_data = g_malloc(body_length);
-			    in->read_all(body_data,body_length,read_count);
-			    body_content = Glib::ustring((gchar*)body_data,body_length);
-			    g_free(body_data);
+			    gint body_length = request->get_int("Content-Length");
+			    if(body_length > 0)
+			      {
+				gsize read_count;
+				gpointer body_data = g_malloc(body_length);
+				in->read_all(body_data,body_length,read_count);
+				body_content = Glib::ustring((gchar*)body_data,body_length);
+				g_free(body_data);
+			      }
 			  }
+			else
+			  {
+			    body_content = request->get_query_param();
+			  }
+
 			Quartz::RefPtr<Context> context(new Context(*session,body_content));
 			try
 			{
-			    auto result = controller->invoke(action_name,context);
+			    Quartz::RefPtr<Quartz::Result>
+			    result = controller->invoke(action_name,context);
+			    result->run(response);
+			    Glib::ustring content = result->get_content();
+			    response->set("Content-Length",(gint64)content.length());
+			    response->write(out);
+			    if(!content.empty())
+				out->write_all(content,written);
 			}
 			catch(std::exception * ex)
 			{
-			    Glib::ustring message = Glib::ustring::compose("{ success = false, message = \"%1\" }",ex->what());
+			    Glib::ustring message = ex->what();
 			    response->set_response_code(Web::HTTP_RESPONSE_INTERNAL_ERROR_SERVER);
 			    response->set("Content-Length",(gint64)message.length());
 			    response->write(out);
@@ -315,23 +345,30 @@ Quartz::Application::on_service_run(
 		      }
 		    else
 		      {
-			//NOT FOUND
+			//NOT FOUND METHOD
 			response->set_response_code(Web::HTTP_RESPONSE_NOT_FOUND);
 			response->write(out);
 		      }
 		  }
-		response->write(out);
+		else
+		  {
+		    //NOT FOUND CONTROLLER
+		    response->set_response_code(Web::HTTP_RESPONSE_NOT_FOUND);
+		    response->write(out);
+		  }
+
+		if(volatile_sesion)
+		  delete session;
+
 		g_mutex_unlock(&m_controller_mutex);
 	      }
 	  }
-	else
+
+	if(not_found)
 	  {
-	    Glib::ustring message = "{ success = false, message = \"the session was not found\" }";
-	    response->set_response_code(Web::HTTP_RESPONSE_INTERNAL_ERROR_SERVER);
-	    response->set("Content-Type","application/json");
-	    response->set("Content-Length",(gint64)message.length());
+	    //NOT FOUND
+	    response->set_response_code(Web::HTTP_RESPONSE_NOT_FOUND);
 	    response->write(out);
-	    out->write_all(message,written);
 	  }
       }
     else

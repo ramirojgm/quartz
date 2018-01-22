@@ -1,5 +1,5 @@
 /*
-	Copyright (C) 2018 Ramiro Jose Garcia Moraga
+	Copyright (C) 2017 Ramiro Jose Garcia Moraga
 
 	This file is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -15,21 +15,26 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include "web/web.h"
+#ifndef WEB_CONTROLLER_WELCOME_H_
+#define WEB_CONTROLLER_WELCOME_H_
 
-
-gint
-main(gint argc,gchar ** argv)
+namespace Web
 {
-  Gio::init();
-  Quartz::Application app;
-  app.add_inet_port(8080);
+  namespace Controller
+  {
+    class Welcome: public Quartz::Controller
+    {
+    public:
+      Welcome();
 
+      virtual ~Welcome();
 
-  app.map("/","web/content");
-  app.map("welcome",new Web::Controller::Welcome());
+    private:
+      Quartz::RefPtr<Quartz::Result> on_default(
+	  const Quartz::RefPtr<Quartz::Context> & context);
 
-  app.run();
-  return 0;
+    };
+  }
 }
+
+#endif /* WEB_CONTROLLER_WELCOME_H_ */

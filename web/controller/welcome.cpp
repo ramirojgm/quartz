@@ -15,21 +15,29 @@
 	along with the this software.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
-#include "web/web.h"
 
+#include "../web.h"
 
-gint
-main(gint argc,gchar ** argv)
+Web::Controller::Welcome::Welcome()
 {
-  Gio::init();
-  Quartz::Application app;
-  app.add_inet_port(8080);
+  map("default",sigc::mem_fun(*this,&Welcome::on_default));
+}
 
+Web::Controller::Welcome::~Welcome()
+{
 
-  app.map("/","web/content");
-  app.map("welcome",new Web::Controller::Welcome());
+}
 
-  app.run();
-  return 0;
+Quartz::RefPtr<Quartz::Result>
+Web::Controller::Welcome::on_default(
+    const Quartz::RefPtr<Quartz::Context> & context)
+{
+  if(context->session.get_int("logged"))
+    {
+      return content("<h1>Session</h1>","text/html");
+    }
+  else
+    {
+      return content("<h1>No session</h1>","text/html");
+    }
 }
