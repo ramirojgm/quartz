@@ -1,0 +1,17 @@
+﻿<Properties StartupItem="quartz/quartz.cproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="quartz/main.cpp">
+    <Files>
+      <File FileName="quartz/main.cpp" Line="13" Column="70" />
+      <File FileName="quartz/http/socketlistener.h" Line="1" Column="1" />
+      <File FileName="quartz/http/package.h" Line="1" Column="1" />
+      <File FileName="quartz/http/socketlistener.cpp" Line="46" Column="2" />
+      <File FileName="quartz/quartz.h" Line="1" Column="1" />
+      <File FileName="quartz/http/socket.cpp" Line="19" Column="27" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
